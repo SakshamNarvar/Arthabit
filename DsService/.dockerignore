@@ -1,0 +1,19 @@
+# Virtual environment — never copy into image
+dsenv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Dev/test files
+.env
+.env.*
+*.md

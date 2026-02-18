@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: ds-service
+Version: 1.0
+Summary: Data Science Service for Expense Tracker
+Author: SakshamNarvar
+Requires-Python: >=3.9
+Requires-Dist: Flask==3.1.2
+Requires-Dist: kafka-python==2.0.2
+Requires-Dist: langchain-core<0.4,>=0.3.15
+Requires-Dist: langchain-google-genai==2.0.5
+Requires-Dist: pydantic==2.10.6
+Requires-Dist: python-dotenv==1.0.1
+Requires-Dist: python-dateutil==2.9.0.post0
+Requires-Dist: gunicorn==25.0.3
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

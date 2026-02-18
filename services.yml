@@ -1,0 +1,136 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  mysql:
+    image: mysql:8.3.0
+    container_name: mysql-8.3.0
+    restart: always
+    environment:
+      MYSQL_USER: test
+      MYSQL_PASSWORD: 'narvar007'
+      MYSQL_ROOT_PASSWORD: 'narvar007'
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - mysql-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pnarvar007"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    # image: user-service:latest
+    build: ./UserService
+    container_name: user-service
+    pull_policy: never
+    environment:
+      KAFKA_HOST: kafka
+      MYSQL_HOST: mysql
+    ports:
+      - "9810:9810"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+
+  auth-service:
+    # image: auth-service:latest
+    build: ./AuthService
+    container_name: auth-service
+    pull_policy: never
+    environment:
+      KAFKA_HOST: kafka
+      MYSQL_HOST: mysql
+    ports:
+      - "9898:9898"
+    depends_on:
+      kafka: 
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+  
+  expense-service:
+    # image: expense-service:latest
+    build: ./ExpenseService
+    container_name: expense-service
+    pull_policy: never
+    ports: 
+      - '9820:9820'
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: expense_service
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+  ds-service:
+    # image: ds-service:latest
+    build: ./DsService
+    container_name: ds-service
+    pull_policy: never
+    restart: on-failure
+    ports:
+      - '8010:8010'
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      GOOGLE_API_KEY: AIzaSyBFRYjSjYgL7XJsldYrgj70yxnqgs0MbjI
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      expense-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+
+
+volumes:
+  mysql-db:
+    driver: local
