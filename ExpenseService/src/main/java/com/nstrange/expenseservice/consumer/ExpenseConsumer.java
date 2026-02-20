@@ -19,14 +19,14 @@ public class ExpenseConsumer
         this.expenseService = expenseService;
     }
 
-    @KafkaListener(topics = "${spring.kafka.topic-json.name}", groupId = "${spring.kafka.consumer.group-id}")
-    public void listen(ExpenseDto eventData) {
-        try{
-            // Todo: Make it transactional, and check if duplicate event (Handle idempotency)
-            expenseService.createExpense(eventData);
-        }catch(Exception ex){
-            ex.printStackTrace();
-            System.out.println("AuthServiceConsumer: Exception is thrown while consuming kafka event");
-        }
-    }
+//    @KafkaListener(topics = "${spring.kafka.topic-json.name}", groupId = "${spring.kafka.consumer.group-id}")
+//    public void listen(ExpenseDto eventData) {
+//        try{
+//            // Todo: Make it transactional, and check if duplicate event (Handle idempotency)
+//            expenseService.createExpense(eventData);
+//        }catch(Exception ex){
+//            ex.printStackTrace();
+//            System.out.println("AuthServiceConsumer: Exception is thrown while consuming kafka event");
+//        }
+//    }
 }
