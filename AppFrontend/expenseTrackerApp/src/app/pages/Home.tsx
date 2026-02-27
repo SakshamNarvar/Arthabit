@@ -1,27 +1,36 @@
-import React from 'react';
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import ExpenseTrackerGraph from './ExpenseTrackerGraph';
-import SpendsInsights from './SpendsInsights';
+import React, {useState, useCallback} from 'react';
+import {StyleSheet, View, ScrollView} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import Spends from './Spends';
 import Nav from './Nav';
+import AddExpenseModal from '../components/AddExpenseModal';
 
 const Home = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleExpenseAdded = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
   return (
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <Nav />
-          <View style={styles.contentContainer}>
-            <View style={styles.graphContainer}>
-              <ExpenseTrackerGraph />
-            </View>
-            <View style={styles.insightsContainer}>
-              <SpendsInsights />
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.container}>
+            <Nav />
+            <View style={styles.spendsContainer}>
+              <Spends
+                onAddPress={() => setModalVisible(true)}
+                refreshTrigger={refreshTrigger}
+              />
             </View>
           </View>
-          <View style={styles.spendsContainer}>
-            <Spends />
-          </View>
-        </View>
+        </ScrollView>
+        <AddExpenseModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onExpenseAdded={handleExpenseAdded}
+        />
       </SafeAreaView>
   );
 };
@@ -31,31 +40,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
   container: {
     flex: 1,
     paddingHorizontal: 16,
     flexDirection: 'column',
   },
-  contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  graphContainer: {
-    flex: 1,
-    marginRight: 10,
-  },
-  insightsContainer: {
-    flex: 1,
-    marginLeft: 10,
-  },
   spendsContainer: {
     marginTop: 20,
-  },
-  text: {
-    color: 'black',
-    fontFamily: 'Roboto',
   },
 });
 

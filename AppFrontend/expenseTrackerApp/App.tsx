@@ -7,15 +7,9 @@ import Login from './src/app/pages/Login';
 import Profile from './src/app/pages/Profile';
 import { enableScreens } from 'react-native-screens';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import type { RootStackParamList } from './src/app/navigation/AppNavigator';
 
 enableScreens(true);
-
-export type RootStackParamList = {
-  Login: undefined;
-  SignUp: undefined;
-  Home: undefined;
-  Profile: undefined;
-};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

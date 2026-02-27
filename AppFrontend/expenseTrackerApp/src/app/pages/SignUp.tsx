@@ -32,20 +32,28 @@ const SignUp: React.FC<SignUpProps> = ({navigation}) => {
           'first_name': firstName,
           'last_name': lastName,
           'email': email,
-          'phone_number': phoneNumber,
+          'phone_number': Number(phoneNumber),
           'password': password,
           'username': userName
         }),
       });
   
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Signup failed:', response.status, errorData);
+        return;
+      }
       const data = await response.json();
       console.log(data);
       console.log(data["accessToken"]);
       console.log(data["token"]);
       await AsyncStorage.setItem('accessToken', data["accessToken"]);
       await AsyncStorage.setItem('refreshToken', data["token"]);
+      if (data["userId"]) {
+        await AsyncStorage.setItem('userId', data["userId"]);
+      }
   
-      navigation.navigate('Home');
+      navigation.reset({index: 0, routes: [{name: 'Home'}]});
     } catch (error) {
       console.error('Error during sign up:', error);
     }
@@ -80,6 +88,7 @@ const SignUp: React.FC<SignUpProps> = ({navigation}) => {
             onChangeText={text => setUserName(text)}
             style={styles.textInput}
             placeholderTextColor="#888"
+            autoCapitalize="none"
           />
           <TextInput
             placeholder="Email"
@@ -88,6 +97,7 @@ const SignUp: React.FC<SignUpProps> = ({navigation}) => {
             style={styles.textInput}
             placeholderTextColor="#888"
             keyboardType="email-address"
+            autoCapitalize="none"
           />
           <TextInput
             placeholder="Password"
@@ -96,6 +106,7 @@ const SignUp: React.FC<SignUpProps> = ({navigation}) => {
             style={styles.textInput}
             placeholderTextColor="#888"
             secureTextEntry
+            autoCapitalize="none"
           />
           <TextInput
             placeholder="Phone Number"

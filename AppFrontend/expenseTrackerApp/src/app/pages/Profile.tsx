@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,20 +7,17 @@ import {
   TouchableOpacity,
   Platform,
   ImageStyle,
+  ActivityIndicator,
 } from 'react-native';
 import CustomText from '../components/CustomText';
 import { UserDto } from './dto/UserDto';
 import { theme } from '../theme/theme';
-import { Camera, ChevronRight, User, Phone, Mail, Bell, Lock, Moon } from 'lucide-react-native';
-
-const mockUser: UserDto = {
-  userId: '12345',
-  firstName: 'John',
-  lastName: 'Doe',
-  phoneNumber: 1234567890,
-  email: 'john.doe@example.com',
-  profilePic: 'https://i.pravatar.cc/300',
-};
+import { Camera, ChevronRight, User, Phone, Mail, Bell, Lock, Moon, LogOut } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/AppNavigator';
+import API_CONFIG from '../config/apiConfig';
 
 interface ProfileItemProps {
   icon: React.ReactNode;
@@ -42,6 +39,56 @@ const ProfileItem: React.FC<ProfileItemProps> = ({ icon, label, value }) => (
 );
 
 const Profile = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [user, setUser] = useState<UserDto | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) {
+          console.error('No userId found in storage');
+          setIsLoading(false);
+          return;
+        }
+        const SERVER_BASE_URL = API_CONFIG.USER_SERVICE_URL;
+        const response = await fetch(`${SERVER_BASE_URL}/user/v1/getUser?userId=${userId}`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser({
+            userId: data['user_id'],
+            firstName: data['first_name'],
+            lastName: data['last_name'],
+            phoneNumber: data['phone_number'],
+            email: data['email'],
+            profilePic: data['profile_pic'] || undefined,
+          });
+        } else {
+          console.error('Failed to fetch user profile:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('refreshToken');
+    await AsyncStorage.removeItem('userId');
+    navigation.reset({index: 0, routes: [{name: 'Login'}]});
+  };
+
   const formatPhoneNumber = (phone: number): string => {
     const phoneStr = phone.toString();
     return `(${phoneStr.slice(0, 3)}) ${phoneStr.slice(3, 6)}-${phoneStr.slice(6)}`;
@@ -49,43 +96,49 @@ const Profile = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.profileImageContainer}>
-          <Image
-            source={{ uri: mockUser.profilePic }}
-            style={styles.profileImage as ImageStyle}
-          />
-          <TouchableOpacity style={styles.editButton}>
-            <Camera color={theme.colors.primary} size={16} />
-          </TouchableOpacity>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
-        <CustomText style={styles.name}>
-          {mockUser.firstName} {mockUser.lastName}
-        </CustomText>
-        <CustomText style={styles.userId}>ID: {mockUser.userId}</CustomText>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.section}>
-          <CustomText style={styles.sectionTitle}>Personal Information</CustomText>
-          <View style={styles.card}>
-            <ProfileItem
-              icon={<User color={theme.colors.primary} size={16} />}
-              label="Name"
-              value={`${mockUser.firstName} ${mockUser.lastName}`}
-            />
-            <ProfileItem
-              icon={<Phone color={theme.colors.primary} size={16} />}
-              label="Phone"
-              value={formatPhoneNumber(mockUser.phoneNumber)}
-            />
-            <ProfileItem
-              icon={<Mail color={theme.colors.primary} size={16} />}
-              label="Email"
-              value={mockUser.email}
-            />
+      ) : (
+        <>
+          <View style={styles.header}>
+            <View style={styles.profileImageContainer}>
+              <Image
+                source={{ uri: user?.profilePic || 'https://i.pravatar.cc/300' }}
+                style={styles.profileImage as ImageStyle}
+              />
+              <TouchableOpacity style={styles.editButton}>
+                <Camera color={theme.colors.primary} size={16} />
+              </TouchableOpacity>
+            </View>
+            <CustomText style={styles.name}>
+              {user ? `${user.firstName} ${user.lastName}` : 'Unknown User'}
+            </CustomText>
+            <CustomText style={styles.userId}>ID: {user?.userId || 'N/A'}</CustomText>
           </View>
-        </View>
+
+          <View style={styles.content}>
+            <View style={styles.section}>
+              <CustomText style={styles.sectionTitle}>Personal Information</CustomText>
+              <View style={styles.card}>
+                <ProfileItem
+                  icon={<User color={theme.colors.primary} size={16} />}
+                  label="Name"
+                  value={user ? `${user.firstName} ${user.lastName}` : 'N/A'}
+                />
+                <ProfileItem
+                  icon={<Phone color={theme.colors.primary} size={16} />}
+                  label="Phone"
+                  value={user ? formatPhoneNumber(user.phoneNumber) : 'N/A'}
+                />
+                <ProfileItem
+                  icon={<Mail color={theme.colors.primary} size={16} />}
+                  label="Email"
+                  value={user?.email || 'N/A'}
+                />
+              </View>
+            </View>
 
         <View style={styles.section}>
           <CustomText style={styles.sectionTitle}>Settings</CustomText>
@@ -107,7 +160,14 @@ const Profile = () => {
             />
           </View>
         </View>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <LogOut color={theme.colors.status.error} size={20} />
+          <CustomText style={styles.logoutText}>Logout</CustomText>
+        </TouchableOpacity>
       </View>
+        </>
+      )}
     </ScrollView>
   );
 };
@@ -116,6 +176,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background.primary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
   },
   header: {
     alignItems: 'center',
@@ -213,6 +279,23 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.base,
     color: theme.colors.text.primary,
     fontWeight: theme.typography.fontWeight.medium,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.surface.primary,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing['2xl'],
+    borderWidth: 1,
+    borderColor: theme.colors.status.error,
+  },
+  logoutText: {
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.status.error,
+    marginLeft: theme.spacing.sm,
   },
 });
 

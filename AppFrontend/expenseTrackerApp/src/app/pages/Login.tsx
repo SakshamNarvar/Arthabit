@@ -1,5 +1,5 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
 import CustomText from '../components/CustomText';
 import CustomBox from '../components/CustomBox';
 import {GestureHandlerRootView, TextInput} from 'react-native-gesture-handler';
@@ -16,56 +16,101 @@ const Login: React.FC<LoginProps> = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(true);
   const loginService = new LoginService();
+  const isMounted = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const refreshToken = async () => {
-    const SERVER_BASE_URL = API_CONFIG.AUTH_SERVICE_URL;
-    console.log('Inside Refresh token');
-    const refreshToken = await AsyncStorage.getItem('refreshToken');
-    const response = await fetch(`${SERVER_BASE_URL}/auth/v1/refreshToken`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      body: JSON.stringify({
-        token: refreshToken,
-      }),
-    });
+  const tryRefreshToken = async () => {
+    try {
+      const SERVER_BASE_URL = API_CONFIG.AUTH_SERVICE_URL;
+      console.log('Inside Refresh token');
+      const storedRefreshToken = await AsyncStorage.getItem('refreshToken');
+      if (!storedRefreshToken) {
+        return false;
+      }
+      const response = await fetch(`${SERVER_BASE_URL}/auth/v1/refreshToken`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({
+          token: storedRefreshToken,
+        }),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      await AsyncStorage.setItem('accessToken', data['accessToken']);
-      await AsyncStorage.setItem('refreshToken', data['token']);
-      const refreshToken = await AsyncStorage.getItem('refreshToken');
-      const accessToken = await AsyncStorage.getItem('accessToken');
-      console.log(
-        'Tokens after refresh are ' + refreshToken + ' ' + accessToken,
-      );
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('accessToken', data['accessToken']);
+        await AsyncStorage.setItem('refreshToken', data['token']);
+        const newRefreshToken = await AsyncStorage.getItem('refreshToken');
+        const newAccessToken = await AsyncStorage.getItem('accessToken');
+        console.log(
+          'Tokens after refresh are ' + newRefreshToken + ' ' + newAccessToken,
+        );
+      }
+
+      return response.ok;
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+      return false;
     }
-
-    return response.ok;
   };
 
   const gotoHomePageWithLogin = async () => {
-    const SERVER_BASE_URL = API_CONFIG.AUTH_SERVICE_URL;
-    const response = await fetch(`${SERVER_BASE_URL}/auth/v1/login`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      body: JSON.stringify({
-        username: userName,
-        password: password,
-      }),
-    });
-    if (response.ok) {
-      const data = await response.json();
-      await AsyncStorage.setItem('refreshToken', data['token']);
-      await AsyncStorage.setItem('accessToken', data['accessToken']);
-      navigation.navigate('Home');
+    if (!userName.trim() || !password.trim()) {
+      Alert.alert('Login Failed', 'Please enter both username and password.');
+      return;
+    }
+
+    // Cancel any previous in-flight login request
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    try {
+      const SERVER_BASE_URL = API_CONFIG.AUTH_SERVICE_URL;
+      const response = await fetch(`${SERVER_BASE_URL}/auth/v1/login`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({
+          username: userName,
+          password: password,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!isMounted.current) return;
+
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('refreshToken', data['token']);
+        await AsyncStorage.setItem('accessToken', data['accessToken']);
+        if (data['userId']) {
+          await AsyncStorage.setItem('userId', data['userId']);
+        }
+        navigation.reset({index: 0, routes: [{name: 'Home'}]});
+      } else {
+        let errorMsg = 'Login failed. Please try again.';
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMsg = errorData.message;
+          }
+        } catch (_) {
+          // response wasn't JSON
+        }
+        console.warn('Login failed:', response.status, errorMsg);
+        Alert.alert('Login Failed', errorMsg);
+      }
+    } catch (error: any) {
+      if (error?.name === 'AbortError') return;
+      if (!isMounted.current) return;
+      console.warn('Error during login:', error);
     }
   };
 
@@ -74,21 +119,34 @@ const Login: React.FC<LoginProps> = ({navigation}) => {
   };
 
   useEffect(() => {
+    isMounted.current = true;
+
     const handleLogin = async () => {
-      const loggedIn = await loginService.isLoggedIn();
-      setLoggedIn(loggedIn);
-      if (loggedIn) {
-        navigation.navigate('Home');
-      } else {
-        const refreshed = await refreshToken();
-        setLoggedIn(refreshed);
-        if (refreshed) {
+      try {
+        const isAlreadyLoggedIn = await loginService.isLoggedIn();
+        if (!isMounted.current) return;
+        setLoggedIn(isAlreadyLoggedIn);
+        if (isAlreadyLoggedIn) {
+          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+        } else {
+          const refreshed = await tryRefreshToken();
+          if (!isMounted.current) return;
           setLoggedIn(refreshed);
-          navigation.navigate('Home');
+          if (refreshed) {
+            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+          }
         }
+      } catch (error) {
+        console.warn('Error during auto-login:', error);
+        if (isMounted.current) setLoggedIn(false);
       }
     };
     handleLogin();
+
+    return () => {
+      isMounted.current = false;
+      abortControllerRef.current?.abort();
+    };
   }, []);
 
   return (
@@ -97,11 +155,12 @@ const Login: React.FC<LoginProps> = ({navigation}) => {
         <CustomBox style={loginBox}>
           <CustomText style={styles.heading}>Login</CustomText>
           <TextInput
-            placeholder="User Name"
+            placeholder="Username"
             value={userName}
             onChangeText={text => setUserName(text)}
             style={styles.textInput}
             placeholderTextColor="#888"
+            autoCapitalize="none"
           />
           <TextInput
             placeholder="Password"
@@ -110,6 +169,7 @@ const Login: React.FC<LoginProps> = ({navigation}) => {
             style={styles.textInput}
             placeholderTextColor="#888"
             secureTextEntry
+            autoCapitalize="none"
           />
         </CustomBox>
         <TouchableOpacity onPress={() => gotoHomePageWithLogin()} style={styles.button}>
@@ -119,7 +179,7 @@ const Login: React.FC<LoginProps> = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => gotoSignup()} style={styles.button}>
           <CustomBox style={buttonBox}>
-            <CustomText style={{textAlign: 'center'}}>Goto Signup</CustomText>
+            <CustomText style={{textAlign: 'center'}}>Signup</CustomText>
           </CustomBox>
         </TouchableOpacity>
       </View>

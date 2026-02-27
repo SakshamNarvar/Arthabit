@@ -8,11 +8,11 @@ import SignUp from '../pages/SignUp';
 import Login from '../pages/Login';
 
 export type RootStackParamList = {
+  Login: undefined;
+  SignUp: undefined;
   Home: undefined;
   Profile: undefined;
   Spends: undefined;
-  SignUp: undefined;
-  Login: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
