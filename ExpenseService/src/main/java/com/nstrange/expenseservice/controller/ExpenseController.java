@@ -2,7 +2,6 @@ package com.nstrange.expenseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nstrange.expenseservice.dto.CreateExpenseRequestDto;
-//import com.nstrange.expenseservice.dto.ExpenseDto;
 import com.nstrange.expenseservice.dto.ExpenseResponseDto;
 import com.nstrange.expenseservice.entities.Expense;
 import com.nstrange.expenseservice.service.ExpenseService;
@@ -31,12 +30,7 @@ public class ExpenseController
     @GetMapping(path = "/getExpense")
     public ResponseEntity<List<ExpenseResponseDto>> getExpense(
             @RequestHeader("X-User-Id") String userId){
-//        try{
-//            List<ExpenseDto> expenseDtoList = expenseService.getExpenses(userId);
-//            return new ResponseEntity<>(expenseDtoList, HttpStatus.OK);
-//        }catch(Exception ex){
-//            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-//        }
+
         List<Expense> expenses = expenseService.getExpenses(userId);
 
         List<ExpenseResponseDto> response =
@@ -51,15 +45,7 @@ public class ExpenseController
     public ResponseEntity<ExpenseResponseDto> addExpenses(
             @RequestHeader(value = "X-User-Id") @NonNull String userId,
             @RequestBody CreateExpenseRequestDto requestDto){
-//        try{
-//            expenseDto.setUserId(userId);
-//            return new ResponseEntity<>(expenseService.createExpense(expenseDto), HttpStatus.OK);
-//        }catch (Exception ex){
-//            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-//        }
         Expense createdExpense = expenseService.createExpense(requestDto, userId);
-
-//        ExpenseDto responseDto = objectMapper.convertValue(createdExpense, ExpenseDto.class);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
