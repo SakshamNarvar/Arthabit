@@ -16,6 +16,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,8 +46,10 @@ public class TokenController {
             if (!authentication.isAuthenticated()) {
                 throw new InvalidCredentialsException("Invalid username or password");
             }
-        } catch (BadCredentialsException ex) {
+        } catch (UsernameNotFoundException | BadCredentialsException ex) {
             throw new InvalidCredentialsException("Invalid username or password");
+        } catch (AuthenticationException ex) {
+            throw new InvalidCredentialsException("Authentication failed: " + ex.getMessage());
         }
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequestDTO.getUsername());
