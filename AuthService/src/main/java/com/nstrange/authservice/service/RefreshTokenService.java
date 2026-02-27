@@ -2,6 +2,7 @@ package com.nstrange.authservice.service;
 
 import com.nstrange.authservice.entities.RefreshToken;
 import com.nstrange.authservice.entities.UserInfo;
+import com.nstrange.authservice.exception.TokenRefreshException;
 import com.nstrange.authservice.repository.RefreshTokenRepository;
 import com.nstrange.authservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,8 @@ public class RefreshTokenService {
     public RefreshToken verifyExpiration(RefreshToken token) {
         if(token.getExpiryDate().compareTo(Instant.now())<0) {
             refreshTokenRepository.delete(token);
-            throw new RuntimeException(token.getToken() + " Refresh token is expired. Please make a new sign-in request");
+            throw new TokenRefreshException(token.getToken(),
+                    "Refresh token has expired. Please make a new sign-in request");
         }
         return token;
     }

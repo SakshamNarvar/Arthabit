@@ -3,6 +3,7 @@ package com.nstrange.authservice.service;
 import com.nstrange.authservice.entities.UserInfo;
 import com.nstrange.authservice.eventProducer.UserInfoEvent;
 import com.nstrange.authservice.eventProducer.UserInfoProducer;
+import com.nstrange.authservice.exception.UserAlreadyExistsException;
 import com.nstrange.authservice.model.UserInfoDto;
 import com.nstrange.authservice.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -55,13 +56,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public String signupUser(UserInfoDto userInfoDto) {
         userInfoDto.setPassword(passwordEncoder.encode(userInfoDto.getPassword()));
         if (Objects.nonNull(checkIfUserAlreadyExists(userInfoDto))) {
-            return null;
+            throw new UserAlreadyExistsException(userInfoDto.getUsername());
         }
         String userId = UUID.randomUUID().toString();
         UserInfo userInfo = new UserInfo(userId, userInfoDto.getUsername(),
-                userInfoDto.getPassword(), new HashSet<>());
+                userInfoDto.getPassword(), userInfoDto.getFirstName(), userInfoDto.getLastName(),
+                userInfoDto.getEmail(), userInfoDto.getPhoneNumber(), new HashSet<>());
         userRepository.save(userInfo);
-        userInfoProducer.sendEventToKafka(userInfoDto);
+
+        // Fire-and-forget: Kafka failure must NOT block signup
+        try {
+            userInfoProducer.sendEventToKafka(userInfoEventToPublish(userInfoDto, userId));
+        } catch (Exception ex) {
+            log.error("Failed to publish user event to Kafka for userId={}: {}", userId, ex.getMessage(), ex);
+        }
+
         return userId;
     }
 
@@ -72,7 +81,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserInfoEvent userInfoEventToPublish(UserInfoDto userInfoDto, String userId) {
         return UserInfoEvent.builder()
                 .userId(userId)
-                .firstName(userInfoDto.getUsername())
+                .firstName(userInfoDto.getFirstName())
                 .lastName(userInfoDto.getLastName())
                 .email(userInfoDto.getEmail())
                 .phoneNumber(userInfoDto.getPhoneNumber())

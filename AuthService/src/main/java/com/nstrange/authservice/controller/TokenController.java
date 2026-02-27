@@ -1,25 +1,26 @@
 package com.nstrange.authservice.controller;
 
 import com.nstrange.authservice.entities.RefreshToken;
+import com.nstrange.authservice.exception.InvalidCredentialsException;
+import com.nstrange.authservice.exception.TokenRefreshException;
 import com.nstrange.authservice.request.AuthRequestDTO;
 import com.nstrange.authservice.request.RefreshTokenRequestDTO;
 import com.nstrange.authservice.response.JwtResponseDTO;
 import com.nstrange.authservice.service.JwtService;
 import com.nstrange.authservice.service.RefreshTokenService;
 import com.nstrange.authservice.service.UserDetailsServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
-
-@Controller
+@RestController
 public class TokenController {
 
     @Autowired
@@ -34,39 +35,44 @@ public class TokenController {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    @PostMapping("auth/v1/login")
-    public ResponseEntity AuthenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
-        if (authentication.isAuthenticated()){
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequestDTO.getUsername());
-            String userId = userDetailsService.getUserByUsername(authRequestDTO.getUsername());
+    @PostMapping("/auth/v1/login")
+    public ResponseEntity<JwtResponseDTO> authenticateAndGetToken(@RequestBody @Valid AuthRequestDTO authRequestDTO) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
 
-            if(Objects.nonNull(userId) && Objects.nonNull(refreshToken)) {
-                return new ResponseEntity<>(JwtResponseDTO.builder()
-                        .accessToken(jwtService.generateToken(authRequestDTO.getUsername()))
-                        .token(refreshToken.getToken())
-                        .build(), HttpStatus.OK);
+            if (!authentication.isAuthenticated()) {
+                throw new InvalidCredentialsException("Invalid username or password");
             }
-//            return new ResponseEntity<>(JwtResponseDTO.builder()
-//                    .accessToken(jwtService.generateToken(authRequestDTO.getUsername()))
-//                    .token(refreshToken.getToken())
-//                    .build(), HttpStatus.OK);
+        } catch (BadCredentialsException ex) {
+            throw new InvalidCredentialsException("Invalid username or password");
         }
-        return new ResponseEntity<>("Exception in User Service", HttpStatus.INTERNAL_SERVER_ERROR);
 
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequestDTO.getUsername());
+        String userId = userDetailsService.getUserByUsername(authRequestDTO.getUsername());
+        String accessToken = jwtService.generateToken(authRequestDTO.getUsername());
+
+        return ResponseEntity.ok(JwtResponseDTO.builder()
+                .accessToken(accessToken)
+                .token(refreshToken.getToken())
+                .userId(userId)
+                .build());
     }
 
-    @PostMapping("auth/v1/refreshToken")
-    public JwtResponseDTO refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO) {
+    @PostMapping("/auth/v1/refreshToken")
+    public ResponseEntity<JwtResponseDTO> refreshToken(@RequestBody @Valid RefreshTokenRequestDTO refreshTokenRequestDTO) {
         return refreshTokenService.findByToken(refreshTokenRequestDTO.getToken())
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUserInfo)
                 .map(userInfo -> {
                     String accessToken = jwtService.generateToken(userInfo.getUsername());
-                    return JwtResponseDTO.builder()
+                    return ResponseEntity.ok(JwtResponseDTO.builder()
                             .accessToken(accessToken)
                             .token(refreshTokenRequestDTO.getToken())
-                            .build();
-                }).orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+                            .build());
+                })
+                .orElseThrow(() -> new TokenRefreshException(
+                        refreshTokenRequestDTO.getToken(),
+                        "Refresh token not found. Please login again"));
     }
 }

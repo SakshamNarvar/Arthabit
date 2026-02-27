@@ -9,18 +9,8 @@ import lombok.*;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserInfoDto extends UserInfo {
-
-    @NonNull
-    private String firstName;
-
-    @NonNull
-    private String lastName;
-
-    private Long phoneNumber;
-
-    private String email;
+    // firstName, lastName, email, phoneNumber are inherited from UserInfo
 }
