@@ -44,7 +44,7 @@ services:
       MYSQL_PASSWORD: 'narvar007'
       MYSQL_ROOT_PASSWORD: 'narvar007'
     ports:
-      - "3306:3306"
+      - "3307:3306"
     expose:
       - "3306"
     volumes:
