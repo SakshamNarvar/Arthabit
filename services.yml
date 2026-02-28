@@ -119,7 +119,7 @@ services:
     environment:
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
-      GOOGLE_API_KEY: AIzaSyBFRYjSjYgL7XJsldYrgj70yxnqgs0MbjI
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
     depends_on:
       kafka:
         condition: service_healthy

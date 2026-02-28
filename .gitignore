@@ -1,3 +1,4 @@
 .DS_Store
 AppFrontend/.DS_Store
 AuthService/AUTH_SERVICE_DEEP_DIVE.md
+.env
