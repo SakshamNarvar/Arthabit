@@ -3,7 +3,6 @@ package com.nstrange.userservice.consumer;
 import com.nstrange.userservice.entities.UserInfoDto;
 import com.nstrange.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController
 {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping("/user/v1/getUser")
     public ResponseEntity<UserInfoDto> getUser(@RequestParam("userId") String userId){

@@ -4,7 +4,6 @@ import com.nstrange.userservice.entities.UserInfo;
 import com.nstrange.userservice.entities.UserInfoDto;
 import com.nstrange.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,7 +14,6 @@ import java.util.function.UnaryOperator;
 @RequiredArgsConstructor
 public class UserService
 {
-    @Autowired
     private final UserRepository userRepository;
 
     public UserInfoDto createOrUpdateUser(UserInfoDto userInfoDto){
