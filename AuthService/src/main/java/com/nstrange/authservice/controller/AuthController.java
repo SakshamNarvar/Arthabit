@@ -43,11 +43,6 @@ public class AuthController {
                 .build());
     }
 
-    @GetMapping("/ping")
-    public ResponseEntity<String> simplePing() {
-        return ResponseEntity.ok("pong");
-    }
-
     @GetMapping("/auth/v1/ping")
     public ResponseEntity<String> ping() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

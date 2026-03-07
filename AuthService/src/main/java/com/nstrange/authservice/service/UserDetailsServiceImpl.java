@@ -53,16 +53,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new CustomUserDetails(user);
     }
 
-    public UserInfo checkIfUserAlreadyExists(UserInfoDto userInfoDto) {
-        return userRepository.findByUsername(userInfoDto.getUsername());
+    public UserInfo checkIfUserAlreadyExists(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public String signupUser(UserInfoDto userInfoDto) {
-        userInfoDto.setPassword(passwordEncoder.encode(userInfoDto.getPassword()));
-        if (Objects.nonNull(checkIfUserAlreadyExists(userInfoDto))) {
+        if (Objects.nonNull(checkIfUserAlreadyExists(userInfoDto.getUsername()))) {
             throw new UserAlreadyExistsException(userInfoDto.getUsername());
         }
         String userId = UUID.randomUUID().toString();
+        userInfoDto.setPassword(passwordEncoder.encode(userInfoDto.getPassword()));
 
         UserRole defaultRole = roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new UserRole(null, "ROLE_USER")));
