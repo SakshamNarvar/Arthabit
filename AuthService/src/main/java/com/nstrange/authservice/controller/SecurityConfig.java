@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nstrange.authservice.auth.JwtAuthFilter;
 import com.nstrange.authservice.eventProducer.UserInfoProducer;
 import com.nstrange.authservice.exception.ErrorResponse;
+import com.nstrange.authservice.repository.RoleRepository;
 import com.nstrange.authservice.repository.UserRepository;
 import com.nstrange.authservice.service.UserDetailsServiceImpl;
 import lombok.Data;
@@ -46,11 +47,13 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     @Autowired
     private final UserInfoProducer userInfoProducer;
+    @Autowired
+    private final RoleRepository roleRepository;
 
     @Bean
     @Autowired
     public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        return new UserDetailsServiceImpl(userRepository, passwordEncoder, userInfoProducer);
+        return new UserDetailsServiceImpl(userRepository, passwordEncoder, userInfoProducer, roleRepository);
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());

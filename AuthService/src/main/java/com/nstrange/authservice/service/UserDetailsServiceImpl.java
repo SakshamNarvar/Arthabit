@@ -1,10 +1,12 @@
 package com.nstrange.authservice.service;
 
 import com.nstrange.authservice.entities.UserInfo;
+import com.nstrange.authservice.entities.UserRole;
 import com.nstrange.authservice.eventProducer.UserInfoEvent;
 import com.nstrange.authservice.eventProducer.UserInfoProducer;
 import com.nstrange.authservice.exception.UserAlreadyExistsException;
 import com.nstrange.authservice.model.UserInfoDto;
+import com.nstrange.authservice.repository.RoleRepository;
 import com.nstrange.authservice.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,9 +19,9 @@ import org.springframework.stereotype.Component;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -33,6 +35,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     @Autowired
     private final UserInfoProducer userInfoProducer;
+    @Autowired
+    private final RoleRepository roleRepository;
 
     private static final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
@@ -59,9 +63,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UserAlreadyExistsException(userInfoDto.getUsername());
         }
         String userId = UUID.randomUUID().toString();
+
+        UserRole defaultRole = roleRepository.findByName("ROLE_USER")
+                .orElseGet(() -> roleRepository.save(new UserRole(null, "ROLE_USER")));
+
         UserInfo userInfo = new UserInfo(userId, userInfoDto.getUsername(),
-                userInfoDto.getPassword(), userInfoDto.getFirstName(), userInfoDto.getLastName(),
-                userInfoDto.getEmail(), userInfoDto.getPhoneNumber(), new HashSet<>());
+                userInfoDto.getPassword(), userInfoDto.getEmail(),
+                userInfoDto.getPhoneNumber(), Set.of(defaultRole));
         userRepository.save(userInfo);
 
         // Fire-and-forget: Kafka failure must NOT block signup
