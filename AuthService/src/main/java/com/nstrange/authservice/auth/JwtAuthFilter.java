@@ -40,10 +40,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/health", "/ping", "/auth/v1/login", "/auth/v1/signup", "/auth/v1/refreshToken"
     );
 
+    private static final List<String> PUBLIC_PATH_PREFIXES = List.of(
+            "/swagger-ui", "/v3/api-docs", "/swagger-resources", "/webjars"
+    );
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return PUBLIC_PATHS.stream().anyMatch(path::equals);
+        return PUBLIC_PATHS.stream().anyMatch(path::equals)
+                || PUBLIC_PATH_PREFIXES.stream().anyMatch(path::startsWith);
     }
 
     @Override
