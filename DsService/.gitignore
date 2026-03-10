@@ -1,2 +1,5 @@
 /dsenv
 .env
+src/app/__pycache__/
+src/app/service/__pycache__/
+src/app/utils/__pycache__/
