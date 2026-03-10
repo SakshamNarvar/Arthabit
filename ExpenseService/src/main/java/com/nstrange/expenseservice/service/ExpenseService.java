@@ -1,19 +1,16 @@
 package com.nstrange.expenseservice.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nstrange.expenseservice.dto.CreateExpenseRequestDto;
+import com.nstrange.expenseservice.dto.ExpenseDto;
 import com.nstrange.expenseservice.entities.Expense;
 import com.nstrange.expenseservice.repository.ExpenseRepository;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-//import java.security.Timestamp;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class ExpenseService
@@ -44,6 +41,17 @@ public class ExpenseService
         return expenseRepository.save(expense);
     }
 
+    public void createExpense(ExpenseDto expenseDto){
+        Expense expense = new Expense();
+        expense.setUserId(expenseDto.getUserId());
+        expense.setAmount(expenseDto.getAmount());
+        expense.setMerchant(expenseDto.getMerchant());
+        expense.setCurrency(Objects.nonNull(expenseDto.getCurrency()) ? expenseDto.getCurrency() : "inr");
+        expense.setCreatedAt(Objects.nonNull(expenseDto.getCreatedAt()) ? expenseDto.getCreatedAt() : new Timestamp(System.currentTimeMillis()));
+
+        expenseRepository.save(expense);
+    }
+
 //    public boolean updateExpense(ExpenseDto expenseDto){
 //        setCurrency(expenseDto);
 //        Optional<Expense> expenseFoundOpt = expenseRepository.findByUserIdAndExternalId(expenseDto.getUserId(), expenseDto.getExternalId());
@@ -59,14 +67,6 @@ public class ExpenseService
 //    }
 
     public List<Expense> getExpenses(String userId){
-//        List<Expense> expenseOpt = expenseRepository.findByUserId(userId);
-//        return objectMapper.convertValue(expenseOpt, new TypeReference<List<ExpenseDto>>() {});
         return expenseRepository.findByUserId(userId);
     }
-
-//    private void setCurrency(ExpenseDto expenseDto){
-//        if(Objects.isNull(expenseDto.getCurrency())){
-//            expenseDto.setCurrency("inr");
-//        }
-//    }
 }
