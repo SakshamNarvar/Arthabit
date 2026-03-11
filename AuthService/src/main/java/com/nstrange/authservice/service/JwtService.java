@@ -50,7 +50,7 @@ public class JwtService {
                 .claims(claims) // "setClaims" is deprecated
                 .subject(username) // "setSubject" is deprecated
                 .issuedAt(new Date(System.currentTimeMillis())) // "setIssuedAt" is deprecated
-                .expiration(new Date(System.currentTimeMillis() + 100000 * 60)) // "setExpiration" is deprecated
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10)) // 1000 (ms) * 60 (s) * 10 (m)
                 .signWith(getSignKey(), Jwts.SIG.HS256) // Updated signWith signature
                 .compact();
     }
