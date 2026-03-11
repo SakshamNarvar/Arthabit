@@ -73,6 +73,7 @@ public class TokenController {
                     return ResponseEntity.ok(JwtResponseDTO.builder()
                             .accessToken(accessToken)
                             .token(refreshTokenRequestDTO.getToken())
+                            .userId(userInfo.getUserId())
                             .build());
                 })
                 .orElseThrow(() -> new TokenRefreshException(
