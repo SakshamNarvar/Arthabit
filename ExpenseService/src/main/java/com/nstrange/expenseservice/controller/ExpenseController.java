@@ -1,12 +1,15 @@
 package com.nstrange.expenseservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nstrange.expenseservice.client.AuthClient;
 import com.nstrange.expenseservice.dto.CreateExpenseRequestDto;
 import com.nstrange.expenseservice.dto.ExpenseResponseDto;
 import com.nstrange.expenseservice.entities.Expense;
 import com.nstrange.expenseservice.service.ExpenseService;
-import lombok.NonNull;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,19 +21,23 @@ import java.util.List;
 public class ExpenseController
 {
 
+    private static final Logger log = LoggerFactory.getLogger(ExpenseController.class);
+
     private final ExpenseService expenseService;
-    private final ObjectMapper objectMapper;
+    private final AuthClient authClient;
 
     @Autowired
-    ExpenseController(ExpenseService expenseService, ObjectMapper objectMapper){
+    ExpenseController(ExpenseService expenseService, AuthClient authClient){
         this.expenseService = expenseService;
-        this.objectMapper = objectMapper;
+        this.authClient = authClient;
     }
 
     @GetMapping(path = "/getExpense")
     public ResponseEntity<List<ExpenseResponseDto>> getExpense(
-            @RequestHeader("X-User-Id") String userId){
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader){
 
+        String userId = authClient.authenticateAndGetUserId(authorizationHeader);
+        log.info("Fetching expenses for userId={}", userId);
         List<Expense> expenses = expenseService.getExpenses(userId);
 
         List<ExpenseResponseDto> response =
@@ -38,15 +45,21 @@ public class ExpenseController
                         .map(this::mapToDto)
                         .toList();
 
+        log.info("Returning {} expenses for userId={}", response.size(), userId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping(path="/addExpense")
     public ResponseEntity<ExpenseResponseDto> addExpenses(
-            @RequestHeader(value = "X-User-Id") @NonNull String userId,
-            @RequestBody CreateExpenseRequestDto requestDto){
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+            @Valid @RequestBody CreateExpenseRequestDto requestDto){
+
+        String userId = authClient.authenticateAndGetUserId(authorizationHeader);
+        log.info("Creating expense for userId={}, merchant={}", userId, requestDto.getMerchant());
         Expense createdExpense = expenseService.createExpense(requestDto, userId);
 
+        log.info("Expense created successfully with externalId={} for userId={}",
+                createdExpense.getExternalId(), userId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(mapToDto(createdExpense));
