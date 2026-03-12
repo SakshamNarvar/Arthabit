@@ -2,7 +2,6 @@ package com.nstrange.authservice.serializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nstrange.authservice.eventProducer.UserInfoEvent;
-//import com.nstrange.authservice.model.UserInfoDto;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Map;

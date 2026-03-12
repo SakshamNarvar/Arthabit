@@ -10,6 +10,7 @@ import com.nstrange.authservice.repository.RoleRepository;
 import com.nstrange.authservice.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,8 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Component
-@AllArgsConstructor
-@Data
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
