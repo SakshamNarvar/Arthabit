@@ -13,12 +13,17 @@ import java.sql.Timestamp;
 @Setter
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ExpenseResponseDto {
+public class UpdateExpenseDto {
 
-    private String externalId;
     private BigDecimal amount;
-    private String userId;
+
+/*  private String description;
+    private String category;
+    private String tag;*/
+
     private String merchant;
+
     private String currency;
+
     private Timestamp createdAt;
 }

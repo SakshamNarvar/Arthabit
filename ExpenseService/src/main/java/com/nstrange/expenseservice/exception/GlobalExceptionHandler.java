@@ -42,6 +42,13 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(ExpenseNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleExpenseNotFound(
+            ExpenseNotFoundException ex, HttpServletRequest request) {
+        log.warn("Expense not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(ExpenseServiceException.class)
     public ResponseEntity<ApiErrorResponse> handleExpenseServiceException(
             ExpenseServiceException ex, HttpServletRequest request) {
@@ -152,4 +159,3 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 }
-

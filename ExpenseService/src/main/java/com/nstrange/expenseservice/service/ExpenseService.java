@@ -3,7 +3,9 @@ package com.nstrange.expenseservice.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nstrange.expenseservice.dto.CreateExpenseRequestDto;
 import com.nstrange.expenseservice.dto.ExpenseDto;
+import com.nstrange.expenseservice.dto.UpdateExpenseDto;
 import com.nstrange.expenseservice.entities.Expense;
+import com.nstrange.expenseservice.exception.ExpenseNotFoundException;
 import com.nstrange.expenseservice.exception.ExpenseServiceException;
 import com.nstrange.expenseservice.exception.InvalidExpenseRequestException;
 import com.nstrange.expenseservice.repository.ExpenseRepository;
@@ -34,9 +36,11 @@ public class ExpenseService
 
     public Expense createExpense(CreateExpenseRequestDto requestDto, String userId){
         if (Objects.isNull(requestDto)) {
+            log.error("Expense request body must not be null");
             throw new InvalidExpenseRequestException("Expense request body must not be null");
         }
         if (Objects.isNull(userId) || userId.isBlank()) {
+            log.error("User ID must not be null or blank");
             throw new InvalidExpenseRequestException("User ID must not be null or blank");
         }
 
@@ -52,7 +56,7 @@ public class ExpenseService
         expense.setUserId(userId);
 
         if (Objects.isNull(expense.getCurrency())) {
-            expense.setCurrency("inr");
+            expense.setCurrency("INR");
         }
 
         if (Objects.isNull(expense.getCreatedAt())) {
@@ -95,19 +99,48 @@ public class ExpenseService
         }
     }
 
-//    public boolean updateExpense(ExpenseDto expenseDto){
-//        setCurrency(expenseDto);
-//        Optional<Expense> expenseFoundOpt = expenseRepository.findByUserIdAndExternalId(expenseDto.getUserId(), expenseDto.getExternalId());
-//        if(expenseFoundOpt.isEmpty()){
-//            return false;
-//        }
-//        Expense expense = expenseFoundOpt.get();
-//        expense.setAmount(expenseDto.getAmount());
-//        expense.setMerchant(Strings.isNotBlank(expenseDto.getMerchant())?expenseDto.getMerchant():expense.getMerchant());
-//        expense.setCurrency(Strings.isNotBlank(expenseDto.getCurrency())?expenseDto.getMerchant():expense.getCurrency());
-//        expenseRepository.save(expense);
-//        return true;
-//    }
+    public Expense updateExpense(UpdateExpenseDto expenseDto, String expenseId){
+
+        if (Objects.isNull(expenseDto)) {
+            log.error("Expense update body must not be null");
+            throw new InvalidExpenseRequestException("Expense update body must not be null");
+        }
+        if (Objects.isNull(expenseId) || expenseId.isBlank()) {
+            log.error("Expense ID must not be null or blank");
+            throw new InvalidExpenseRequestException("Expense ID must not be null or blank");
+        }
+
+        Expense existing;
+        try {
+            existing = expenseRepository.findByExternalId(expenseId)
+                    .orElseThrow(() -> new ExpenseNotFoundException("Expense with id=" + expenseId + " not found"));
+        } catch (DataAccessException ex) {
+            log.error("Database error while fetching expense for expenseId={}", expenseId, ex);
+            throw new ExpenseServiceException("Failed to fetch expense " + expenseId, ex);
+        }
+
+        if (Objects.nonNull(expenseDto.getAmount())) {
+            existing.setAmount(expenseDto.getAmount());
+        }
+        if (Objects.nonNull(expenseDto.getMerchant()) && !expenseDto.getMerchant().isBlank()) {
+            existing.setMerchant(expenseDto.getMerchant());
+        }
+        if (Objects.nonNull(expenseDto.getCurrency()) && !expenseDto.getCurrency().isBlank()) {
+            existing.setCurrency(expenseDto.getCurrency());
+        }
+        if (Objects.nonNull(expenseDto.getCreatedAt())) {
+            existing.setCreatedAt(expenseDto.getCreatedAt());
+        }
+
+        try {
+            Expense saved = expenseRepository.save(existing);
+            log.info("Expense updated successfully with id={} (externalId={})", saved.getId(), saved.getExternalId());
+            return saved;
+        } catch (DataAccessException ex) {
+            log.error("Database error while updating expenseId={}", expenseId, ex);
+            throw new ExpenseServiceException("Failed to update expense " + expenseId, ex);
+        }
+    }
 
     public List<Expense> getExpenses(String userId){
         if (Objects.isNull(userId) || userId.isBlank()) {
