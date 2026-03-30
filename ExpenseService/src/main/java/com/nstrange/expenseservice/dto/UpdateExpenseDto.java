@@ -17,9 +17,9 @@ public class UpdateExpenseDto {
 
     private BigDecimal amount;
 
-/*  private String description;
+    private String notes;
     private String category;
-    private String tag;*/
+    private String fundSource;
 
     private String merchant;
 

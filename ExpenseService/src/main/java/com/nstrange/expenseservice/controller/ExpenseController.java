@@ -80,6 +80,9 @@ public class ExpenseController
                 .merchant(expense.getMerchant())
                 .currency(expense.getCurrency())
                 .createdAt(expense.getCreatedAt())
+                .fundSource(expense.getFundSource())
+                .category(expense.getCategory())
+                .notes(expense.getNotes())
                 .build();
     }
 }

@@ -42,16 +42,17 @@ public class Expense
     @Column(name = "currency")
     private String currency;
 
+    @Column(name = "notes")
+    private String notes;
+
+    @Column(name = "category")
+    private String category;
+
+    @Column(name = "fund_source")
+    private String fundSource;
+
     @JsonProperty(value = "created_at")
     private Timestamp createdAt;
-
-//    @PrePersist
-//    @PreUpdate
-//    private void generateExternalId() {
-//        if (this.externalId == null) {
-//            this.externalId = UUID.randomUUID().toString();
-//        }
-//    }
 
     @PrePersist
     private void PrePersist() {

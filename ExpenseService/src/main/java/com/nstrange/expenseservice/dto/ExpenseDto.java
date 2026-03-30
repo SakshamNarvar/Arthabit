@@ -37,4 +37,13 @@ public class ExpenseDto
 
     @JsonProperty(value = "created_at")
     private Timestamp createdAt;
+
+    @JsonProperty(value = "notes")
+    private String notes;
+
+    @JsonProperty(value = "category")
+    private String category;
+
+    @JsonProperty(value = "fund_source")
+    private String fundSource;
 }

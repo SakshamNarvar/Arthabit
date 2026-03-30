@@ -73,6 +73,7 @@ public class ExpenseService
         }
     }
 
+    // create from Kafka
     public void createExpense(ExpenseDto expenseDto){
         if (Objects.isNull(expenseDto)) {
             throw new InvalidExpenseRequestException("ExpenseDto must not be null");
@@ -130,6 +131,15 @@ public class ExpenseService
         }
         if (Objects.nonNull(expenseDto.getCreatedAt())) {
             existing.setCreatedAt(expenseDto.getCreatedAt());
+        }
+        if (Objects.nonNull(expenseDto.getFundSource())) {
+            existing.setFundSource(expenseDto.getFundSource());
+        }
+        if (Objects.nonNull(expenseDto.getCategory())) {
+            existing.setCategory(expenseDto.getCategory());
+        }
+        if (Objects.nonNull(expenseDto.getNotes())) {
+            existing.setNotes(expenseDto.getNotes());
         }
 
         try {
