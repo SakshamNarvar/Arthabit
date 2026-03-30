@@ -51,5 +51,4 @@ public class UserInfo
 
     @JsonProperty("profile_pic")
     private String profilePic;
-
 }
