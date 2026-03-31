@@ -49,7 +49,15 @@ public class TokenController {
         } catch (UsernameNotFoundException ex) {
             throw new InvalidCredentialsException("Username '" + authRequestDTO.getUsername() + "' not found");
         } catch (BadCredentialsException ex) {
-            throw new InvalidCredentialsException("Incorrect password for username '" + authRequestDTO.getUsername() + "'");
+            String hint = "No hint available";
+            try {
+                com.nstrange.authservice.entities.UserInfo user = userDetailsService.checkIfUserAlreadyExists(authRequestDTO.getUsername());
+                if (user != null && user.getPasswordHint() != null) {
+                    hint = user.getPasswordHint();
+                }
+            } catch (Exception ignored) {}
+            
+            throw new InvalidCredentialsException("Incorrect password for username " + authRequestDTO.getUsername() + ", Password hint: " + hint);
         } catch (AuthenticationException ex) {
             throw new InvalidCredentialsException("Authentication failed: " + ex.getMessage());
         }
