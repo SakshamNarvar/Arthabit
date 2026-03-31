@@ -65,11 +65,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 username = jwtService.extractUsername(token);
             } catch (ExpiredJwtException ex) {
                 log.warn("Expired JWT token for request: {}", request.getRequestURI());
-                writeErrorResponse(response, request, HttpStatus.UNAUTHORIZED, "JWT token has expired. Please login again");
+                writeErrorResponse(response, request, "JWT token has expired. Please login again");
                 return;
             } catch (JwtException ex) {
                 log.warn("Invalid JWT token for request: {}: {}", request.getRequestURI(), ex.getMessage());
-                writeErrorResponse(response, request, HttpStatus.UNAUTHORIZED, "Invalid JWT token");
+                writeErrorResponse(response, request, "Invalid JWT token");
                 return;
             }
         }
@@ -86,9 +86,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void writeErrorResponse(HttpServletResponse response, HttpServletRequest request,
-                                    HttpStatus status, String message) throws IOException {
-        ErrorResponse errorResponse = ErrorResponse.of(status, message, request.getRequestURI());
-        response.setStatus(status.value());
+                                    String message) throws IOException {
+        ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.UNAUTHORIZED, message, request.getRequestURI());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), errorResponse);
     }
