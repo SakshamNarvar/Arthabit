@@ -70,7 +70,7 @@ Edit `src/main/resources/application.properties` or env vars:
 
 ## Kafka
 
-- Topic `user_service`; key `StringSerializer`; value `UserInfoSerializer`; `acks=all`, retries `3`.
+- Topic `user_service`; key `StringSerializer`; value `org.springframework.kafka.support.serializer.JsonSerializer`; `acks=all`, retries `3`.
 - Payload example:
 
 ```json
@@ -93,11 +93,9 @@ Edit `src/main/resources/application.properties` or env vars:
 - `eventProducer/` — `UserInfoEvent`, `UserInfoProducer`
 - `repository/` — JPA repos for users, roles, tokens
 - `exception/` — centralized handlers and custom exceptions
-- `serializer/` — Kafka serializer
 - `model/request/response/` — DTOs
 - `utils/` — utilities placeholder
 
 ## Error Handling
 
-Unified JSON error body via `GlobalExceptionHandler` with HTTP status, message, path, timestamp. Common cases: `400` validation, `401` bad credentials/expired JWT, `403` refresh token invalid, `409` duplicate username, `500` fallback.
-
+Unified JSON error body via `GlobalExceptionHandler` with HTTP status, message, path, timestamp. Common cases: `400` validation, `401` bad credentials (returns specific reason and password hint if available) or expired JWT, `403` refresh token invalid, `409` duplicate username, `500` fallback.
