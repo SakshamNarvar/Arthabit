@@ -22,6 +22,9 @@ public class UserInfoDto {
     @NotBlank(message = "Password is required")
     private String password;
 
+    @NotBlank(message = "Password hint is required")
+    private String passwordHint;
+
     @NotBlank(message = "First name is required")
     private String firstName;
 

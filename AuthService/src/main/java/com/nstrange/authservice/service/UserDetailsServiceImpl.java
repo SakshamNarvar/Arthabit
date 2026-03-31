@@ -67,9 +67,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         UserRole defaultRole = roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new UserRole(null, "ROLE_USER")));
 
-        UserInfo userInfo = new UserInfo(userId, userInfoDto.getUsername(),
-                userInfoDto.getPassword(), userInfoDto.getEmail(),
-                userInfoDto.getPhoneNumber(), Set.of(defaultRole));
+        UserInfo userInfo = new UserInfo(
+                userId,
+                userInfoDto.getUsername(),
+                userInfoDto.getPassword(),
+                userInfoDto.getPasswordHint(),
+                userInfoDto.getEmail(),
+                userInfoDto.getPhoneNumber(),
+                null,
+                Set.of(defaultRole));
         userRepository.save(userInfo);
 
         // Fire-and-forget: Kafka failure must NOT block signup
