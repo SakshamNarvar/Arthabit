@@ -7,7 +7,6 @@ Part of the Expense Tracker App. Handles signup, login, JWT issuance/validation,
 - Java 21, Spring Boot 3.3.x, Spring Security 6 + JWT
 - MySQL via Spring Data JPA; Kafka for signup events (`user_service` topic)
 - Gradle build; Docker image based on Eclipse Temurin 21
-- Swagger UI: `http://localhost:9898/swagger-ui.html`
 
 ## Run It
 
@@ -60,7 +59,7 @@ Edit `src/main/resources/application.properties` or env vars:
 
 - Stateless JWT auth; no HTTP sessions. Access token ~100 minutes (HS256). Refresh token persisted in `tokens` table with similar lifetime.
 - Signup flow: store user (BCrypt password), assign `ROLE_USER`, create refresh token, publish `UserInfoEvent` to Kafka (fire-and-forget).
-- Security: `JwtAuthFilter` validates Bearer tokens; CORS allows all origins; Swagger endpoints are public.
+- Security: `JwtAuthFilter` validates Bearer tokens; CORS allows all origins.
 
 ## Data Model (DDL auto-update)
 

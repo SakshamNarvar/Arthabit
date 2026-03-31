@@ -68,14 +68,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/v1/login", "/auth/v1/refreshToken", "/auth/v1/signup", "/health").permitAll()
-                        .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/v3/api-docs",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
