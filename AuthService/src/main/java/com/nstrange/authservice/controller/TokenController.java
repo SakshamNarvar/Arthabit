@@ -46,8 +46,10 @@ public class TokenController {
             if (!authentication.isAuthenticated()) {
                 throw new InvalidCredentialsException("Invalid username or password");
             }
-        } catch (UsernameNotFoundException | BadCredentialsException ex) {
-            throw new InvalidCredentialsException("Invalid username or password");
+        } catch (UsernameNotFoundException ex) {
+            throw new InvalidCredentialsException("Username '" + authRequestDTO.getUsername() + "' not found");
+        } catch (BadCredentialsException ex) {
+            throw new InvalidCredentialsException("Incorrect password for username '" + authRequestDTO.getUsername() + "'");
         } catch (AuthenticationException ex) {
             throw new InvalidCredentialsException("Authentication failed: " + ex.getMessage());
         }
