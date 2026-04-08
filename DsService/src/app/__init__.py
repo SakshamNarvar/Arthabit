@@ -6,7 +6,6 @@ import json
 import os
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
 
 messageService = MessageService()
 kafka_host = os.getenv('KAFKA_HOST', 'localhost')
@@ -18,14 +17,6 @@ producer = KafkaProducer(bootstrap_servers=kafka_bootstrap_servers, value_serial
 
 @app.route('/v1/ds/message', methods=['POST'])
 def handle_message():
-    # message = request.json.get('message')
-    # result = messageService.process_message(message)
-    # serialized_result = result.json()
-
-    # producer.send('expense_service', serialized_result)
-    
-    # return jsonify(result)
-
     user_id = request.headers.get('x-user-id')
     if not user_id:
         return jsonify({'error': 'x-user-id header is required'}), 400

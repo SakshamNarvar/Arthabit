@@ -1,5 +1,7 @@
 /dsenv
 .env
+dist/
 src/app/__pycache__/
 src/app/service/__pycache__/
 src/app/utils/__pycache__/
+src/ds_service.egg-info/
