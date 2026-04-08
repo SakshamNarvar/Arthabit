@@ -23,4 +23,10 @@ public class CreateExpenseRequestDto {
     private String merchant;
 
     private String currency;
+
+    private String fundSource;
+
+    private String notes;
+
+    private String category;
 }

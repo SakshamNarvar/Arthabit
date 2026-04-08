@@ -3,7 +3,7 @@
 Spring Boot microservice that stores and retrieves user expenses. Exposes a small REST API, consumes Kafka events, and persists to MySQL. Default port: `9820`.
 
 ## Overview
-- REST: list expenses and create/update records; headers drive identity (no built-in auth).
+- REST: list expenses and create/update records; headers drive identity (no built-in auth, rely on `X-User-ID` from upstream). Structured error responses via `GlobalExceptionHandler`.
 - Kafka consumer: listens on `expense_service` and writes events to MySQL.
 - JPA/Hibernate manages the `expense` table; currencies default to `INR` when omitted.
 
@@ -42,7 +42,7 @@ Example create request:
 - Topic: `expense_service`
 - Group: `expense-info-consumer-group`
 - Deserializer: custom `ExpenseDeserializer` for `ExpenseDto`
-- Event payload shape (from upstream service): `{ amount, merchant, currency }`. `user_id`, `external_id`, `notes`, `category`, `fund_source`, `created_at` are not present and remain null/auto-populated when persisted.
+- Event payload shape (from upstream service): `{ amount, user_id, merchant, currency, fund_source, created_at }`. `user_id` and `amount` are mandatory. Other fields like `external_id`, `notes`, `category` remain null or get auto-populated when persisted.
 - Behavior: `ExpenseConsumer` persists each event via `ExpenseService`; idempotency/transactions still TODO.
 
 ## Configuration

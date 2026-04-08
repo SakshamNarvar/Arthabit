@@ -27,11 +27,11 @@ public class ExpenseService
 
     private final ExpenseRepository expenseRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    @Autowired
-    ExpenseService(ExpenseRepository expenseRepository){
+    public ExpenseService(ExpenseRepository expenseRepository, ObjectMapper objectMapper){
         this.expenseRepository = expenseRepository;
+        this.objectMapper = objectMapper;
     }
 
     public Expense createExpense(CreateExpenseRequestDto requestDto, String userId){
@@ -88,6 +88,7 @@ public class ExpenseService
         expense.setUserId(expenseDto.getUserId());
         expense.setAmount(expenseDto.getAmount());
         expense.setMerchant(expenseDto.getMerchant());
+        expense.setFundSource(expenseDto.getFundSource());
         expense.setCurrency(Objects.nonNull(expenseDto.getCurrency()) ? expenseDto.getCurrency() : "inr");
         expense.setCreatedAt(Objects.nonNull(expenseDto.getCreatedAt()) ? expenseDto.getCreatedAt() : new Timestamp(System.currentTimeMillis()));
 

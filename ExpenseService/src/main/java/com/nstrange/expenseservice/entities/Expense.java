@@ -48,6 +48,7 @@ public class Expense
     @Column(name = "category")
     private String category;
 
+    @JsonProperty("fund_source")
     @Column(name = "fund_source")
     private String fundSource;
 
