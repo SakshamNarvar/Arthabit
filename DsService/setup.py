@@ -9,6 +9,7 @@ install_requires = [
     'python-dotenv==1.0.1',
     'python-dateutil==2.9.0.post0',
     'gunicorn==25.0.3',
+    'tenacity>=8.0.0',
 ]
 
 setup(

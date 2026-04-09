@@ -1,5 +1,6 @@
 import os
 import logging
+from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.service.Expense import Expense
@@ -34,14 +35,18 @@ class LLMService:
             logger.error(f"Failed to initialize LLM: {e}")
             self.runnable = None
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10), reraise=True)
+    def _invoke_llm(self, message):
+        logger.info("Invoking LLM for message extraction.")
+        return self.runnable.invoke({"text":message})
+
     def runLLM(self, message):
         if not self.runnable:
             logger.error("LLM pipeline is not active. Attempted to process message.")
             return None
             
         try:
-            logger.info("Invoking LLM for message extraction.")
-            return self.runnable.invoke({"text":message})
+            return self._invoke_llm(message)
         except Exception as e:
-            logger.error(f"Error during LLM invocation: {e}")
+            logger.error(f"Error during LLM invocation after retries: {e}")
             return None
