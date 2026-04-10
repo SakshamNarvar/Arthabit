@@ -1,0 +1,94 @@
+openapi: 3.1.0
+info:
+  title: User Service
+  description: API for user details management
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:9810'
+paths:
+  /user/v1/users/{userId}:
+    get:
+      summary: Fetch user details from db
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDto'
+        '404':
+          description: User not found
+    put:
+      summary: Updates user details in db
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateDto'
+      responses:
+        '200':
+          description: Successful update response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDto'
+        '404':
+          description: User not found
+
+  /user/health:
+    get:
+      summary: check api health
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+components:
+  schemas:
+    UserInfoDto:
+      type: object
+      required:
+        - user_id
+        - first_name
+        - last_name
+        - phone_number
+        - email
+      properties:
+        user_id:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone_number:
+          type: integer
+          format: int64
+        email:
+          type: string
+        profile_pic:
+          type: string
+    UserProfileUpdateDto:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        profile_pic:
+          type: string

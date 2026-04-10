@@ -20,7 +20,7 @@ Base URL: `http://localhost:9810`
 
 - `GET /user/v1/users/{userId}` → fetch a user.
 - `PUT /user/v1/users/{userId}` → update `firstName`, `lastName`, `profilePic` (nulls ignored; other fields immutable).
-- `GET /health` → liveness check.
+- `GET /user/health` → liveness check.
 
 ## Kafka Flow
 - Topic: `user_service`, group: `userinfo-consumer-group`.

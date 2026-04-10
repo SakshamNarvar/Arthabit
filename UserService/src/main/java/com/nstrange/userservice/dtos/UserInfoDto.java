@@ -24,6 +24,10 @@ public class UserInfoDto
     @NonNull
     private String userId;
 
+    @JsonProperty("username")
+    @NonNull
+    private String username;
+
     @JsonProperty("first_name")
     @NonNull
     private String firstName;
@@ -45,6 +49,7 @@ public class UserInfoDto
 
     public UserInfo transformToUserInfo() {
         return UserInfo.builder()
+                .username(username)
                 .firstName(firstName)
                 .lastName(lastName)
                 .userId(userId)

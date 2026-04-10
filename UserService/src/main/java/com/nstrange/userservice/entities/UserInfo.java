@@ -33,6 +33,10 @@ public class UserInfo
     @NonNull
     private String userId;
 
+    @JsonProperty("username")
+    @NonNull
+    private String username;
+
     @JsonProperty("first_name")
     @NonNull
     private String firstName;

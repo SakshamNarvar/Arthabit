@@ -57,6 +57,7 @@ public class UserService
     private UserInfoDto toDto(UserInfo userInfo) {
         return new UserInfoDto(
                 userInfo.getUserId(),
+                userInfo.getUsername(),
                 userInfo.getFirstName(),
                 userInfo.getLastName(),
                 userInfo.getPhoneNumber(),
