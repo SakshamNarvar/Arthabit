@@ -1,0 +1,157 @@
+openapi: 3.1.0
+info:
+  title: Auth Service API
+  description: API documentation for Arthabit Auth Service
+  version: 1.0.0
+servers:
+  - url: '/'
+paths:
+  /auth/v1/signup:
+    post:
+      summary: Sign up a new user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfoDto'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponseDTO'
+
+  /auth/v1/login:
+    post:
+      summary: Authenticate user and get tokens
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequestDTO'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponseDTO'
+
+  /auth/v1/refreshToken:
+    post:
+      summary: Get new access token from refresh token
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequestDTO'
+      responses:
+        '200':
+          description: Successful refresh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponseDTO'
+
+  /auth/v1/ping:
+    get:
+      summary: Check if user is authenticated
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Return user ID
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+
+  /health:
+    get:
+      summary: Check health status
+      tags:
+        - System
+      responses:
+        '200':
+          description: Health OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserInfoDto:
+      type: object
+      required:
+        - username
+        - password
+        - password_hint
+        - first_name
+        - email
+        - phone_number
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        password_hint:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: integer
+          format: int64
+
+    AuthRequestDTO:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    RefreshTokenRequestDTO:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+
+    JwtResponseDTO:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        token:
+          type: string
+        userId:
+          type: string

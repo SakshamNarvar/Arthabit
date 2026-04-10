@@ -13,6 +13,8 @@ import lombok.Setter;
 @JsonNaming(com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserInfoEvent {
 
+    private String username;
+
     private String firstName;
 
     private String lastName;
