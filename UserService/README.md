@@ -5,7 +5,7 @@ Microservice that stores user profiles for the Expense Tracker app.
 ## Overview
 - Consumes Kafka events from Auth Service to **create** user records (idempotent; no updates from events).
 - Exposes REST APIs to fetch profiles and update profile-specific fields only.
-- `userId`, `email`, `phoneNumber` are owned by Auth Service and are not writable via REST.
+- `userId`, `username`, `email`, `phoneNumber` are owned by Auth Service and are not writable via REST.
 
 ## Tech Stack
 - Java 21, Spring Boot 3.2, Spring Data JPA, Spring Kafka, MySQL, Lombok, Gradle.
@@ -28,7 +28,7 @@ Base URL: `http://localhost:9810`
 - Event handling: if `userId` exists, event is ignored; otherwise a new user is created.
 
 ## Data Ownership
-- Auth Service owns: `userId`, `email`, `phoneNumber` (not writable via REST).
+- Auth Service owns: `userId`, `username`, `email`, `phoneNumber` (not writable via REST).
 - User Service owns: `firstName`, `lastName`, `profilePic` (writable via REST).
 
 ## Configuration Highlights (`application.properties`)

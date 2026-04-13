@@ -8,8 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,9 +43,6 @@ public class UserInfo {
     @Column(name = "phone_number")
     private Long phoneNumber;
 
-    @Column(name = "account_creation_date")
-    private Timestamp accountCreationDate;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -55,9 +50,4 @@ public class UserInfo {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<UserRole> roles = new HashSet<>();
-
-    @PrePersist
-    private void PrePersist() {
-        accountCreationDate = Timestamp.from(Instant.now());
-    }
 }

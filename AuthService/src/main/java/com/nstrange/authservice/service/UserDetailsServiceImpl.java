@@ -74,7 +74,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 userInfoDto.getPasswordHint(),
                 userInfoDto.getEmail(),
                 userInfoDto.getPhoneNumber(),
-                null,
                 Set.of(defaultRole));
         userRepository.save(userInfo);
 
@@ -100,6 +99,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .lastName(userInfoDto.getLastName())
                 .email(userInfoDto.getEmail())
                 .phoneNumber(userInfoDto.getPhoneNumber())
+                .accountCreationDate(new java.sql.Timestamp(System.currentTimeMillis()))
                 .build();
     }
 }

@@ -24,4 +24,6 @@ public class UserInfoEvent {
     private Long phoneNumber;
 
     private String userId;
+
+    private java.sql.Timestamp accountCreationDate;
 }

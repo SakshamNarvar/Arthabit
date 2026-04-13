@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -44,6 +46,10 @@ public class UserInfoDto
     @NonNull
     private String email;
 
+    @NonNull
+    @JsonProperty("account_creation_date")
+    private Timestamp accountCreationDate;
+
     @JsonProperty("profile_pic")
     private String profilePic;
 
@@ -54,6 +60,7 @@ public class UserInfoDto
                 .lastName(lastName)
                 .userId(userId)
                 .email(email)
+                .accountCreationDate(accountCreationDate)
                 .profilePic(profilePic)
                 .phoneNumber(phoneNumber).build();
     }

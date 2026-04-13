@@ -62,6 +62,7 @@ public class UserService
                 userInfo.getLastName(),
                 userInfo.getPhoneNumber(),
                 userInfo.getEmail(),
+                userInfo.getAccountCreationDate(),
                 userInfo.getProfilePic()
         );
     }

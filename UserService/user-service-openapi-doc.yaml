@@ -65,12 +65,16 @@ components:
       type: object
       required:
         - user_id
+        - username
         - first_name
         - last_name
         - phone_number
         - email
+        - account_creation_date
       properties:
         user_id:
+          type: string
+        username:
           type: string
         first_name:
           type: string
@@ -81,6 +85,9 @@ components:
           format: int64
         email:
           type: string
+        account_creation_date:
+          type: string
+          format: date-time
         profile_pic:
           type: string
     UserProfileUpdateDto:
