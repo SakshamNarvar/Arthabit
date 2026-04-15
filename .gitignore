@@ -3,3 +3,4 @@ AppFrontend/.DS_Store
 UserService/.DS_Store
 AuthService/AUTH_SERVICE_DEEP_DIVE.md
 .env
+services-ec2.yml
