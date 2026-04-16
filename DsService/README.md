@@ -12,7 +12,7 @@ The **DsService** is a Python Flask microservice that acts as the "smart parser"
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.9+
 - Kafka running locally or remotely (default: localhost:9092)
 - Google Gemini API Key
 
@@ -50,13 +50,16 @@ docker run -p 8010:8010 --env-file .env ds-service
 
 ## API Endpoints
 
+**Local Base URL:** `http://localhost:8010`  
+**Public AWS Base URL:** `http://arthabit-api.sakshamnarvar.tech/ds-service`
+
 ### `POST /v1/ds/message`
 Processes an SMS, extracts expense details, and publishes to Kafka.
 **Headers:** `x-user-id: <string>` (Required)
 **Body:**
 ```json
 {
-  "message": "Rs 500 spent on Amazon using HDFC card"
+  "message": "INR 500 spent on Amazon using HDFC card"
 }
 ```
 **Response (200 OK):**
@@ -64,7 +67,8 @@ Processes an SMS, extracts expense details, and publishes to Kafka.
 {
   "amount": "500",
   "merchant": "Amazon",
-  "currency": "Rs",
+  "currency": "INR",
+  "fund_source": "HDFC card",
   "user_id": "user123"
 }
 ```
@@ -74,8 +78,7 @@ Processes an SMS, extracts expense details, and publishes to Kafka.
 - `500 Internal Server Error`: Failed to process message internally (e.g., LLM pipeline failure or Kafka exceptions).
 - `503 Service Unavailable`: Message queue (Kafka) is unavailable or failed to initialize.
 
-### Other Endpoints
-- `GET /`: Sanity check (Returns "Hello world")
+### Othe`: Sanity check (Returns "Hello world")
 - `GET /health`: Health probe (Returns "OK")
 
 ## Project Structure

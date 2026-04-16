@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: DS Service API
+  description: Data Science Service for Arthabit Backend to process messages.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8010
+    description: Local server
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Returns the health status of the service
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+
+  /v1/ds/message:
+    post:
+      summary: Process Message
+      description: Processes an incoming message (e.g. Bank SMS) and extracts expense information using LLM.
+      parameters:
+        - in: header
+          name: x-user-id
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: The message text to be processed
+                  example: "Spent INR 500 on dinner at XYZ Restaurant using SBI Card"
+      responses:
+        '200':
+          description: Successfully processed message and published to Kafka
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResponse'
+        '400':
+          description: Bad Request (missing header or invalid message format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error (Failed to process or publish to Kafka)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service Unavailable (Message queue unavailable)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ExpenseResponse:
+      type: object
+      description: Information about a transaction made on any Card
+      properties:
+        amount:
+          type: string
+          description: Expense made on the transaction
+          nullable: true
+        merchant:
+          type: string
+          description: Merchant name to whom the transaction has been made
+          nullable: true
+        currency:
+          type: string
+          description: Currency of the transaction (only allowed values = INR, USD, otherwise null)
+          nullable: true
+        fund_source:
+          type: string
+          description: Fund source of the transaction like SBI Card, ICICI Bank, otherwise null
+          nullable: true
+        user_id:
+          type: string
+          description: The user ID passed in the 'x-user-id' header
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error description message.
+          example: 'x-user-id header is required'

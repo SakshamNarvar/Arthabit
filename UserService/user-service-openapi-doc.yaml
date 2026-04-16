@@ -4,7 +4,7 @@ info:
   description: API for user details management
   version: 1.0.0
 servers:
-  - url: 'http://localhost:9810'
+  - url: 'http://arthabit-api.sakshamnarvar.tech/user-service'
 paths:
   /user/v1/users/{userId}:
     get:

@@ -4,7 +4,7 @@ info:
   description: API documentation for Arthabit Auth Service
   version: 1.0.0
 servers:
-  - url: '/'
+  - url: 'http://arthabit-api.sakshamnarvar.tech/auth-service'
 paths:
   /auth/v1/signup:
     post:

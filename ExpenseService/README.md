@@ -19,6 +19,9 @@ Spring Boot microservice that stores and retrieves user expenses. Exposes a smal
 | Container | eclipse-temurin:21-jre base |
 
 ## API (base `/expense/v1`)
+**Public AWS Base URL:** `http://arthabit-api.sakshamnarvar.tech/expense-service`  
+**Local Base URL:** `http://localhost:9820`
+
 - `GET /getExpense` — header `X-User-ID` required; returns all expenses for that user.
 - `POST /addExpense` — header `X-User-ID`; body `{ amount (required), merchant (required), currency (optional, default INR), notes (optional), category (optional), fund_source (optional) }`; returns created expense with `external_id`.
 - `POST /updateExpense` — header `X-External-ID` (existing expense external id); body may include `amount`, `merchant`, `currency`, `created_at`, `notes`, `category`, `fund_source` to patch fields.
@@ -74,7 +77,6 @@ The app listens on `http://localhost:9820`.
 
 ## Docker
 ```bash
-./gradlew bootJar
 docker build -t expense-service .
 docker run -p 9820:9820 \
   -e KAFKA_HOST=kafka -e KAFKA_PORT=9092 \

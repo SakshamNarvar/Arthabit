@@ -16,7 +16,8 @@ Microservice that stores user profiles for the Expense Tracker app.
 - `service/UserService` → business logic and persistence.
 
 ## API
-Base URL: `http://localhost:9810`
+**Local Base URL:** `http://localhost:9810`  
+**Public AWS Base URL:** `http://arthabit-api.sakshamnarvar.tech/user-service`
 
 - `GET /user/v1/users/{userId}` → fetch a user.
 - `PUT /user/v1/users/{userId}` → update `firstName`, `lastName`, `profilePic` (nulls ignored; other fields immutable).

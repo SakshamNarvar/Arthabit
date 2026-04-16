@@ -81,7 +81,8 @@ The application is configured via `src/main/resources/application.properties`. Y
 
 ## 📡 API Endpoints
 
-Base URL: `http://localhost:9898`
+**Local Base URL:** `http://localhost:9898`  
+**Public AWS Base URL:** `http://arthabit-api.sakshamnarvar.tech/auth-service`
 
 | Method | Endpoint | Description | Auth Required? |
 |---|---|---|---|
@@ -106,7 +107,7 @@ Base URL: `http://localhost:9898`
 ### Data Model 
 
 Tables are auto-updated via Hibernate DDL:
-- **`users`**: `user_id` (PK, UUID), `username`, `password`, `password_hint`, `email`, `phone_number`, `account_creation_date`.
+- **`users`**: `user_id` (PK, UUID), `username`, `password`, `password_hint`, `email`, `phone_number`.
 - **`roles`**: `role_id` (PK), `name`.
 - **`user_roles`**: Join table mapping users to their roles.
 - **`tokens`**: `id` (PK), `token`, `expiry_date`, `user_id` (FK to `users`).
@@ -124,7 +125,8 @@ Tables are auto-updated via Hibernate DDL:
     "last_name": "Doe",
     "email": "john@example.com",
     "phone_number": 9876543210,
-    "user_id": "550e8400-e29b-41d4-a716-446655440000"
+    "user_id": "550e8400-e29b-41d4-a716-446655440000",
+    "account_creation_date": "2026-04-16T10:15:30.000+00:00"
   }
   ```
 

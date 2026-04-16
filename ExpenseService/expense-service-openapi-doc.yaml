@@ -1,0 +1,220 @@
+openapi: 3.1.0
+info:
+  title: Expense Service
+  description: API for expense management
+  version: 1.0.0
+servers:
+  - url: 'http://arthabit-api.sakshamnarvar.tech/expense-service'
+paths:
+  /expense/v1/getExpense:
+    get:
+      summary: Get expenses
+      parameters:
+        - name: X-User-ID
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /expense/v1/addExpense:
+    post:
+      summary: Add an expense
+      parameters:
+        - name: X-User-ID
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseRequestDto'
+      responses:
+        '201':
+          description: Created expense
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /expense/v1/updateExpense:
+    post:
+      summary: Update an expense
+      parameters:
+        - name: X-External-ID
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExpenseDto'
+      responses:
+        '200':
+          description: Updated expense
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+components:
+  schemas:
+    ApiErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        validation_errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldValidationError'
+    FieldValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+        rejected_value:
+          type: string
+    ExpenseDto:
+      type: object
+      properties:
+        external_id:
+          type: string
+        amount:
+          type: number
+        user_id:
+          type: string
+        merchant:
+          type: string
+        currency:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        category:
+          type: string
+        fund_source:
+          type: string
+      required:
+        - amount
+    CreateExpenseRequestDto:
+      type: object
+      properties:
+        amount:
+          type: number
+        merchant:
+          type: string
+        currency:
+          type: string
+        fund_source:
+          type: string
+        notes:
+          type: string
+        category:
+          type: string
+      required:
+        - amount
+        - merchant
+    UpdateExpenseDto:
+      type: object
+      properties:
+        amount:
+          type: number
+        notes:
+          type: string
+        category:
+          type: string
+        fund_source:
+          type: string
+        merchant:
+          type: string
+        currency:
+          type: string
+        created_at:
+          type: string
+          format: date-time
