@@ -124,7 +124,7 @@ Tables are auto-updated via Hibernate DDL:
     "first_name": "John",
     "last_name": "Doe",
     "email": "john@example.com",
-    "phone_number": 9876543210,
+    "phone_number": "+919876543210",
     "user_id": "550e8400-e29b-41d4-a716-446655440000",
     "account_creation_date": "2026-04-16T10:15:30.000+00:00"
   }

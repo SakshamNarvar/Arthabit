@@ -81,8 +81,8 @@ components:
         last_name:
           type: string
         phone_number:
-          type: integer
-          format: int64
+          type: string
+          format: e.164
         email:
           type: string
         account_creation_date:

@@ -36,5 +36,5 @@ public class UserInfoDto {
     private String email;
 
     @NotNull(message = "Phone number is required")
-    private Long phoneNumber;
+    private String phoneNumber;
 }

@@ -124,8 +124,8 @@ components:
           type: string
           format: email
         phone_number:
-          type: integer
-          format: int64
+          type: string
+          format: e.164
 
     AuthRequestDTO:
       type: object

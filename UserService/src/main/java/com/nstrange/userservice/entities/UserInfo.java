@@ -50,7 +50,7 @@ public class UserInfo
 
     @JsonProperty("phone_number")
     @NonNull
-    private Long phoneNumber;
+    private String phoneNumber;
 
     @JsonProperty("email")
     @NonNull
