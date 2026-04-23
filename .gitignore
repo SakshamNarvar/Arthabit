@@ -4,3 +4,5 @@ UserService/.DS_Store
 AuthService/AUTH_SERVICE_DEEP_DIVE.md
 .env
 services-ec2.yml
+nginx/nginx-ec2.conf
+db-arch.md

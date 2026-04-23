@@ -28,8 +28,8 @@ services:
     restart: always
     environment:
       MYSQL_USER: test
-      MYSQL_PASSWORD: 'narvar007'
-      MYSQL_ROOT_PASSWORD: 'narvar007'
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3307:3306"
     expose:
@@ -37,7 +37,7 @@ services:
     volumes:
       - mysql-db:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pnarvar007"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -100,7 +100,6 @@ services:
     build: ./DsService
     container_name: ds-service
     pull_policy: never
-    restart: on-failure
     ports:
       - '8010:8010'
     environment:
@@ -122,8 +121,10 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+      # - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       user-service:
         condition: service_started

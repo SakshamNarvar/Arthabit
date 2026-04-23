@@ -7,10 +7,10 @@ A microservices-based expense tracking application with AI-powered bank SMS pars
 ## Live Demo & Public Endpoints 🚀
 The backend is currently deployed and functional on a public **AWS EC2** instance. Traffic is routed via an Nginx reverse proxy. You can interact with the live microservices using these base URLs:
 
-- **Auth Service:** `http://arthabit-api.sakshamnarvar.tech/auth-service`
-- **User Service:** `http://arthabit-api.sakshamnarvar.tech/user-service`
-- **Expense Service:** `http://arthabit-api.sakshamnarvar.tech/expense-service`
-- **DS (AI) Service:** `http://arthabit-api.sakshamnarvar.tech/ds-service`
+- **Auth Service:** `https://arthabit-api.sakshamnarvar.tech/auth-service`
+- **User Service:** `https://arthabit-api.sakshamnarvar.tech/user-service`
+- **Expense Service:** `https://arthabit-api.sakshamnarvar.tech/expense-service`
+- **DS (AI) Service:** `https://arthabit-api.sakshamnarvar.tech/ds-service`
 
 > ⚠️ **Disclaimer:** *These live endpoints are provided primarily for portfolio/demonstration purposes. The services may be temporarily spun down at times to manage AWS infrastructure costs. Rate-limiting is strictly enforced on the AI parser endpoint to prevent abuse of Gemini API usage.*
 
