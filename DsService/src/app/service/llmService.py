@@ -1,6 +1,12 @@
 import os
 import logging
+import warnings
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+
+# Suppress the FutureWarning from google.generativeai used inside langchain_google_genai
+warnings.filterwarnings("ignore", category=FutureWarning, module="langchain_google_genai.*")
+warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai.*")
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.service.Expense import Expense

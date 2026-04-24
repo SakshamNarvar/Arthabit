@@ -57,9 +57,11 @@ def handle_message():
             return jsonify({'error': 'Message queue unavailable'}), 503
 
         try:
+            logger.info(f"Attempting to publish message to Kafka topic 'expense_service': {serialized_result}")
             future = producer.send('expense_service', serialized_result)
             # block for up to 10 seconds to ensure the message was published
-            future.get(timeout=10)
+            record_metadata = future.get(timeout=10)
+            logger.info(f"Successfully published message to Kafka topic {record_metadata.topic} partition {record_metadata.partition} offset {record_metadata.offset}")
             return jsonify(serialized_result)
         except KafkaError as e:
             logger.error(f"Failed to send message to Kafka: {e}")
