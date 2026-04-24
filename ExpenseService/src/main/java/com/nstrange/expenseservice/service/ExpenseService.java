@@ -11,7 +11,6 @@ import com.nstrange.expenseservice.exception.InvalidExpenseRequestException;
 import com.nstrange.expenseservice.repository.ExpenseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +23,8 @@ public class ExpenseService
 {
 
     private static final Logger log = LoggerFactory.getLogger(ExpenseService.class);
+
+    private static final String DEFAULT_CURRENCY = "INR";
 
     private final ExpenseRepository expenseRepository;
 
@@ -56,7 +57,7 @@ public class ExpenseService
         expense.setUserId(userId);
 
         if (Objects.isNull(expense.getCurrency())) {
-            expense.setCurrency("INR");
+            expense.setCurrency(DEFAULT_CURRENCY);
         }
 
         if (Objects.isNull(expense.getCreatedAt())) {
@@ -89,7 +90,7 @@ public class ExpenseService
         expense.setAmount(expenseDto.getAmount());
         expense.setMerchant(expenseDto.getMerchant());
         expense.setFundSource(expenseDto.getFundSource());
-        expense.setCurrency(Objects.nonNull(expenseDto.getCurrency()) ? expenseDto.getCurrency() : "inr");
+        expense.setCurrency(Objects.nonNull(expenseDto.getCurrency()) ? expenseDto.getCurrency() : DEFAULT_CURRENCY);
         expense.setCreatedAt(Objects.nonNull(expenseDto.getCreatedAt()) ? expenseDto.getCreatedAt() : new Timestamp(System.currentTimeMillis()));
 
         try {

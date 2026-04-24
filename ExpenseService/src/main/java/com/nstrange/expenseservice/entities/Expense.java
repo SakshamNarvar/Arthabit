@@ -56,9 +56,8 @@ public class Expense
     private Timestamp createdAt;
 
     @PrePersist
-    private void PrePersist() {
+    private void prePersist() {
         if (this.externalId == null) this.externalId = UUID.randomUUID().toString();
-        if (currency == null) currency = "INR";
         if (createdAt == null) createdAt = Timestamp.from(Instant.now());
     }
 }
